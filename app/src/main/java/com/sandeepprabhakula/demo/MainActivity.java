@@ -2,6 +2,9 @@ package com.sandeepprabhakula.demo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,19 +26,17 @@ public class MainActivity extends AppCompatActivity {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
     NoteViewModel noteViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Objects.requireNonNull(getSupportActionBar()).hide();
         FloatingActionButton fab = findViewById(R.id.add_note);
-        fab.setOnClickListener(v->{
-            startActivityForResult(new Intent(MainActivity.this,AddNoteActivity.class),ADD_NOTE_REQUEST);
+        fab.setOnClickListener(v -> {
+            startActivityForResult(new Intent(MainActivity.this, AddNoteActivity.class), ADD_NOTE_REQUEST);
         });
-        TextView clearAll = findViewById(R.id.clearAll);
-        clearAll.setOnClickListener(v-> noteViewModel.deleteAllNote());
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setHasFixedSize(true);
         NoteAdapter adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         // update recyclerview
         noteViewModel.getAllNotes().observe(this, adapter::setNotes);
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT) {
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
@@ -56,33 +57,52 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attachToRecyclerView(recyclerView);
         adapter.setOnItemClickListener(note -> {
-            Intent intent = new Intent(MainActivity.this,AddNoteActivity.class);
-            intent.putExtra(AddNoteActivity.EXTRA_DATA,note.getNote());
-            intent.putExtra(AddNoteActivity.EXTRA_ID,note.getId());
-            startActivityForResult(intent,EDIT_NOTE_REQUEST);
+            Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
+            intent.putExtra(AddNoteActivity.EXTRA_DATA, note.getNote());
+            intent.putExtra(AddNoteActivity.EXTRA_ID, note.getId());
+            startActivityForResult(intent, EDIT_NOTE_REQUEST);
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==ADD_NOTE_REQUEST && resultCode==RESULT_OK){
+        if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK) {
             String note = data.getStringExtra(AddNoteActivity.EXTRA_DATA);
-            Note noteObj = new Note(note,1);
+            Note noteObj = new Note(note, 1);
             noteViewModel.insert(noteObj);
             Toast.makeText(MainActivity.this, "Note Saved", Toast.LENGTH_SHORT).show();
-        }else if(requestCode==EDIT_NOTE_REQUEST && resultCode==RESULT_OK){
-            int id = data.getIntExtra(AddNoteActivity.EXTRA_ID,-1);
-            if(id==-1){
+        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
+            int id = data.getIntExtra(AddNoteActivity.EXTRA_ID, -1);
+            if (id == -1) {
                 Toast.makeText(MainActivity.this, "Note can't be updated", Toast.LENGTH_SHORT).show();
             }
             String note = data.getStringExtra(AddNoteActivity.EXTRA_DATA);
-            Note noteObj1 = new Note(note,1);
+            Note noteObj1 = new Note(note, 1);
             noteObj1.setId(id);
             noteViewModel.update(noteObj1);
             Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.deleteAllNotes:
+                noteViewModel.deleteAllNote();
+                Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

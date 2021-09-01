@@ -13,12 +13,6 @@
         android:layout_height="match_parent"
         tools:listitem="@layout/note_item" />
 
-    <TextView
-        android:id="@+id/clearAll"
-        android:text="ClearAll"
-        android:layout_gravity="top|end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_note"
