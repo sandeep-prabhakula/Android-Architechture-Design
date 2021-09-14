@@ -5,21 +5,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -32,11 +29,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         FloatingActionButton fab = findViewById(R.id.add_note);
-        fab.setOnClickListener(v -> {
-            startActivityForResult(new Intent(MainActivity.this, AddNoteActivity.class), ADD_NOTE_REQUEST);
-        });
+        fab.setOnClickListener(v -> startActivityForResult(new Intent(MainActivity.this, AddNoteActivity.class), ADD_NOTE_REQUEST));
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,LinearLayoutManager.VERTICAL));
         recyclerView.setHasFixedSize(true);
         NoteAdapter adapter = new NoteAdapter();
         recyclerView.setAdapter(adapter);
@@ -68,11 +63,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK) {
+            assert data != null;
             String note = data.getStringExtra(AddNoteActivity.EXTRA_DATA);
             Note noteObj = new Note(note, 1);
             noteViewModel.insert(noteObj);
             Toast.makeText(MainActivity.this, "Note Saved", Toast.LENGTH_SHORT).show();
         } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
+            assert data != null;
             int id = data.getIntExtra(AddNoteActivity.EXTRA_ID, -1);
             if (id == -1) {
                 Toast.makeText(MainActivity.this, "Note can't be updated", Toast.LENGTH_SHORT).show();
@@ -96,13 +93,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.deleteAllNotes:
-                noteViewModel.deleteAllNote();
-                Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.deleteAllNotes) {
+            noteViewModel.deleteAllNote();
+            Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 }
