@@ -2,9 +2,11 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#948888">
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -20,6 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="32dp"
+        app:backgroundTint="#A18515"
         android:src="@android:drawable/ic_input_add"
         tools:ignore="SpeakableTextPresentCheck" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
